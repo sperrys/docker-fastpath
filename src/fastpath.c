@@ -429,8 +429,8 @@ int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, g
             // https://libgit2.org/libgit2/#HEAD/type/git_diff_options
             check_lg2(git_tree_entry_bypath(&base_tree_subdir_entry, base_tree, subdir));
             check_lg2(git_tree_entry_bypath(&commit_tree_subdir_entry, commit_tree, subdir));
-            check_lg2(git_tree_lookup(&base_tree_subdir, repo, git_tree_entry_id(base_tree_subdir_entry));
-            check_lg2(git_tree_lookup(&commit_tree_subdir, repo, git_tree_entry_id(commit_tree_subdir_entry));
+            check_lg2(git_tree_lookup(&base_tree_subdir, repo, git_tree_entry_id(base_tree_subdir_entry)));
+            check_lg2(git_tree_lookup(&commit_tree_subdir, repo, git_tree_entry_id(commit_tree_subdir_entry)));
 
             check_lg2(git_diff_tree_to_tree(&diff, repo, base_tree_subdir, commit_tree_subdir, NULL));
         } else {
