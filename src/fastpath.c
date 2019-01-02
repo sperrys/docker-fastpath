@@ -33,6 +33,7 @@ int quiet = 0;
 int main(int argc, char *argv[]) {
     int i, positional = 0;
     char *revspec = NULL, *image_name = NULL, *username = NULL, *password = NULL;
+    const char *subdir = NULL;
     char str[BUFSIZE];
 
     oid_list *candidate_commits;
@@ -42,6 +43,8 @@ int main(int argc, char *argv[]) {
             verbose = 1;
         } else if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) {
             quiet = 1;
+        } else if (strcmp(argv[i], "--subdir") == 0 || strcmp(argv[i], "-s") == 0) {
+            subdir = argv[i];
         } else {
             if (positional == 0) {
                 revspec = argv[i];
@@ -63,7 +66,7 @@ int main(int argc, char *argv[]) {
     username = getenv(ENV_VAR_USERNAME);
     password = getenv(ENV_VAR_PASSWORD);
 
-    candidate_commits = fetch_candidate_commits(revspec);
+    candidate_commits = fetch_candidate_commits(revspec, subdir);
 
     /*
     debug("Candidate list:\n");
@@ -293,7 +296,7 @@ void fetch_suitable_images(oid_list *candidate_commits, char *image_name, char *
     git_libgit2_shutdown(); \
     exit(status)
 
-oid_list *fetch_candidate_commits(char *revspec) {
+oid_list *fetch_candidate_commits(char *revspec, const char *subdir) {
     git_revwalk *walk;
     git_object *revspec_obj = NULL;
     git_repository *repo = NULL;
@@ -336,7 +339,7 @@ oid_list *fetch_candidate_commits(char *revspec) {
     while(i<MAX_STEPS) {
         i++;
         git_oid *oid_match;
-        int ret = revwalk_step(&oid_match, walk, repo, revspec_commit, candidate_commits, hidden_commits);
+        int ret = revwalk_step(&oid_match, walk, repo, revspec_commit, candidate_commits, hidden_commits, subdir);
         git_oid_tostr(str, 9, oid_match);
         switch(ret) {
             case REVWALK_NO_DIFF:
@@ -364,12 +367,14 @@ oid_list *fetch_candidate_commits(char *revspec) {
     EXIT(-1);
 }
 
-int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, git_commit *revspec_commit, oid_list *candidate_commits, oid_list *hidden_commits) {
+int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, git_commit *revspec_commit, oid_list *candidate_commits, oid_list *hidden_commits, const char *subdir) {
     git_oid oid;
     git_oid *oid_match_out;
     git_tree *base_tree;
+    git_tree *base_tree_subdir;
     git_diff *diff;
     git_tree *commit_tree;
+    git_tree *commit_tree_subdir;
     git_diff_stats *stats;
     git_commit *commit;
     char str[BUFSIZE];
@@ -406,12 +411,23 @@ int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, g
             debug("    Diffing  %s. ", str);
         }
 
+        // TODO -add optional subdir
 
         // Compare base tree with current tree
         git_commit_lookup(&commit, repo, &oid);
         check_lg2(git_commit_tree(&base_tree, revspec_commit));
         check_lg2(git_commit_tree(&commit_tree, commit));
-        check_lg2(git_diff_tree_to_tree(&diff, repo, base_tree, commit_tree, NULL));
+
+        if (subdir != NULL) {
+            // https://libgit2.org/libgit2/#HEAD/group/tree/git_tree_entry_bypath
+            // might be able to do this better with git diff options instead
+            // https://libgit2.org/libgit2/#HEAD/type/git_diff_options
+            check_lg2(git_tree_entry_bypath(&base_tree_subdir, base_tree, subdir));
+            check_lg2(git_tree_entry_bypath(&commit_tree_subdir, commit_tree, subdir));
+            check_lg2(git_diff_tree_to_tree(&diff, repo, base_tree_subdir, commit_tree_subdir, NULL));
+        } else {
+            check_lg2(git_diff_tree_to_tree(&diff, repo, base_tree, commit_tree, NULL));
+        }
         check_lg2(git_diff_get_stats(&stats, diff));
         int changed = git_diff_stats_files_changed(stats);
         oid_match_out = calloc(sizeof(git_oid), 1);
