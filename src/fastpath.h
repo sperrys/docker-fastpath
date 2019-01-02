@@ -68,9 +68,9 @@ int oid_list_add(oid_list *list, const git_oid *value);
 const git_oid *oid_list_get(oid_list *list, unsigned int index);
 void oid_list_free(oid_list *list);
 
-oid_list *fetch_candidate_commits(char *revspec);
+oid_list *fetch_candidate_commits(char *revspec, const char * subdir);
 void fetch_suitable_images(oid_list *candidate_commits, char *image_name, char *username, char *password);
-int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, git_commit *revspec_commit, oid_list *candidate_commits, oid_list *hidden_commits);
+int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, git_commit *revspec_commit, oid_list *candidate_commits, oid_list *hidden_commits, const char * subdir);
 int fetch_image(char *image_name, char *tag, char *username, char *password);
 
 

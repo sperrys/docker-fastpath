@@ -371,10 +371,15 @@ int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, g
     git_oid oid;
     git_oid *oid_match_out;
     git_tree *base_tree;
-    git_tree *base_tree_subdir;
-    git_diff *diff;
     git_tree *commit_tree;
+
+    git_tree *base_tree_subdir;
     git_tree *commit_tree_subdir;
+
+    git_tree_entry *base_tree_subdir_entry;
+    git_tree_entry *commit_tree_subdir_entry;
+
+    git_diff *diff;
     git_diff_stats *stats;
     git_commit *commit;
     char str[BUFSIZE];
@@ -422,8 +427,11 @@ int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, g
             // https://libgit2.org/libgit2/#HEAD/group/tree/git_tree_entry_bypath
             // might be able to do this better with git diff options instead
             // https://libgit2.org/libgit2/#HEAD/type/git_diff_options
-            check_lg2(git_tree_entry_bypath(&base_tree_subdir, base_tree, subdir));
-            check_lg2(git_tree_entry_bypath(&commit_tree_subdir, commit_tree, subdir));
+            check_lg2(git_tree_entry_bypath(&base_tree_subdir_entry, base_tree, subdir));
+            check_lg2(git_tree_entry_bypath(&commit_tree_subdir_entry, commit_tree, subdir));
+            check_lg2(git_tree_lookup(&base_tree_subdir, repo, git_tree_entry_id(base_tree_subdir_entry));
+            check_lg2(git_tree_lookup(&commit_tree_subdir, repo, git_tree_entry_id(commit_tree_subdir_entry));
+
             check_lg2(git_diff_tree_to_tree(&diff, repo, base_tree_subdir, commit_tree_subdir, NULL));
         } else {
             check_lg2(git_diff_tree_to_tree(&diff, repo, base_tree, commit_tree, NULL));
