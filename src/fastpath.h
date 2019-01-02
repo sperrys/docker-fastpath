@@ -101,4 +101,5 @@ DESCRIPTION\n\
 OPTIONS\n\
        -v, --verbose             Be verbose\n\
        -q, --quiet               Be quiet\n\
+       -s, --subdir		 specify a subdirectory to diff\n\
 "

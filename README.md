@@ -27,6 +27,7 @@ DESCRIPTION
 OPTIONS
        -v, --verbose             Be verbose
        -q, --quiet               Be quiet
+       -s, --subdir              Specify a subdirectory to diff
 ```
 
 ## Installing
@@ -57,6 +58,8 @@ The Linux version is statically linked to `libgit2` v.0.25.1 and to `libcurl` 7.
 
 The following procedure has been tested on Ubuntu Precise, but the package should be buildable on most recent distributions.
 
+**Neeeded Extra Step for Trusty**
+apt get install libssl-dev
 ```
 apt-get update
 apt-get install build-essential cmake

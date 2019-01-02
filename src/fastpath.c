@@ -39,14 +39,14 @@ int main(int argc, char *argv[]) {
     oid_list *candidate_commits;
 
     for (int i=1; i<argc; i++) {
-        fprintf(stderr, "curr arg: %s", argv[i]);
+        fprintf(stderr, "curr arg: %s\n", argv[i]);
 	if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
             verbose = 1;
         } else if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) {
             quiet = 1;
         } else if (strcmp(argv[i], "--subdir") == 0 || strcmp(argv[i], "-s") == 0) {
-           printf("Here"); 
-	   subdir = argv[i];
+	   subdir = argv[i+1];
+	   i++;
         } else {
             if (positional == 0) {
                 revspec = argv[i];
@@ -425,7 +425,9 @@ int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, g
         check_lg2(git_commit_tree(&base_tree, revspec_commit));
         check_lg2(git_commit_tree(&commit_tree, commit));
 
-        if (subdir != NULL) {
+	fprintf(stderr, "subdir is %s\n", subdir);
+        
+	if (subdir != NULL) {
             // https://libgit2.org/libgit2/#HEAD/group/tree/git_tree_entry_bypath
             // might be able to do this better with git diff options instead
             // https://libgit2.org/libgit2/#HEAD/type/git_diff_options
@@ -440,6 +442,7 @@ int revwalk_step(git_oid **oid_match, git_revwalk *walk, git_repository *repo, g
         }
         check_lg2(git_diff_get_stats(&stats, diff));
         int changed = git_diff_stats_files_changed(stats);
+	fprintf(stderr, "number of files changed %d\n", changed); 
         oid_match_out = calloc(sizeof(git_oid), 1);
         memcpy(oid_match_out, &oid, sizeof(git_oid));
         *oid_match = oid_match_out;
