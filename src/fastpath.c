@@ -39,12 +39,14 @@ int main(int argc, char *argv[]) {
     oid_list *candidate_commits;
 
     for (int i=1; i<argc; i++) {
-        if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
+        fprintf(stderr, "curr arg: %s", argv[i]);
+	if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
             verbose = 1;
         } else if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) {
             quiet = 1;
         } else if (strcmp(argv[i], "--subdir") == 0 || strcmp(argv[i], "-s") == 0) {
-            subdir = argv[i];
+           printf("Here"); 
+	   subdir = argv[i];
         } else {
             if (positional == 0) {
                 revspec = argv[i];
